@@ -47,13 +47,14 @@ body {
 }
 
 /********* Navigation **********/
-.nav {
+.nav ul {
     background-color: #333;
     color: white;
     display: flex;
     justify-content: space-around;
     padding: 10px;
     flex-wrap: wrap;
+    list-style-type: none;
 }
 
 .nav a {
@@ -241,6 +242,12 @@ body {
 
     .upgrades .upgrade-item a {
         font-size: 0.9rem;
+    }
+
+    #inv-display{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        list-style-type: none;
     }
 }
 
