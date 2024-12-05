@@ -16,15 +16,15 @@ async function buildLogin(req, res, next) {
 }
 
 /* ****************************************
-*  Deliver registration view
+*  Deliver registration view               
 * *************************************** */
 async function buildRegister(req, res, next) {
   let nav = await utilities.getNav()
   // req.flash("notice", "This is a flash message in the register view.")
   res.render("account/register", {
-    title: "Registration",
+    title: "Register",
     nav,
-    errors: null
+    errors: null,
   })
 }
 
@@ -39,7 +39,7 @@ async function registerAccount(req, res) {
   let hashedPassword
   try {
     // regular password and cost (salt is generated automatically)
-    hashedPassword = await bcrypt.hashSync(account_password, 100)
+    hashedPassword = await bcrypt.hashSync(account_password, 10)
   } catch (error) {
     req.flash("notice", 'Sorry, there was an error processing the registration.')
     res.status(500).render("account/register", {
@@ -108,4 +108,47 @@ async function registerLogin(req, res) {
   }
 }
 
-module.exports = { buildLogin, buildRegister, registerAccount, registerLogin }
+/* ***************************
+ *  Process add classification
+ * ************************** */
+async function addClassification (req, res) {
+  let nav = await utilities.getNav();
+  const { classification_name } = req.body;
+
+  try {
+    // Insert the new classification into the database
+    await invModel.addClassification(classification_name);
+
+    // Flash success message
+    req.flash("success", "Classification added successfully.");
+    res.redirect("/inv/"); // Redirect to the management view
+  } catch (error) {
+    console.error("Error adding classification:", error);
+    req.flash("error", "Failed to add classification.");
+    res.render("./inventory/add-classification", {
+      title: "Add Classification",
+      nav,
+      errors: [{ msg: "Failed to add classification." }],
+    });
+  }
+};
+
+/* ***************************
+ *  Process add inventory
+ * ************************** */
+async function addInventory (req, res, next) {
+  try {
+    const classificationList = await Util.buildClassificationList();
+    res.render('./inventory/add-inventory', {
+        title: 'Add Inventory Item',
+        classificationList: classificationList,
+        errors: null,
+        message: null,
+        ...req.body, // Sticky data
+    });
+} catch (err) {
+    next(err);
+}
+};
+
+module.exports = { buildLogin, buildRegister, registerAccount, registerLogin, addClassification, addInventory }
