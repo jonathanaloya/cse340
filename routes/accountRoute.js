@@ -1,34 +1,55 @@
-// Needed Resources 
-const regValidate = require('../utilities/account-validation')
-const express = require('express')
-const router = new express.Router()
-const accController = require("../controllers/accountController")
-const utilities = require('../utilities');
+// Needed Resources
+const express = require("express");
+const router = new express.Router();
+const accountController = require("../controllers/accountController");
+const utilities = require("../utilities/");
+const { registationRules, checkRegData, loginRules, checkLoginData } = require('../utilities/account-validation');
 
-const baseController = require("../controllers/baseController")
-// Route to build login
-router.get("/login", utilities.handleErrors(accController.buildLogin))
+// Route for when 'My Account' is clicked
+router.get("/login", utilities.handleErrors(accountController.buildLogin));
 
-// Route to build registration
-router.get("/register", utilities.handleErrors(accController.buildRegister))
+// Route for register button
+router.get("/register", utilities.handleErrors(accountController.buildRegistration));
 
-// Process the registration data
+router.get("/account", utilities.checkJWTToken, (req, res) => {
+  if (!res.locals.accountData) {
+    req.flash("notice", "Please log in to access this page.");
+    return res.redirect("/account/login");
+  }
+
+  const title = "My Account";
+  res.render("account/account", {
+    title,
+    nav: res.locals.nav,
+    user: res.locals.accountData,
+  });
+});
+
+// Route for submitting register form
 router.post(
-    "/register",
-    regValidate.registationRules(),
-    regValidate.checkRegData,
-    utilities.handleErrors(accController.registerAccount)
-)
+  '/register',
+  registationRules(),
+  checkRegData,
+  utilities.handleErrors(accountController.registerAccount)
+);
 
-// Process the login attempt
+// Process the login request
 router.post(
-    "/login",
-    // (req, res) => {
-    //   res.status(200).send('login process')
-    // },
-    regValidate.loginRules(),
-    regValidate.checkLoginData,
-    utilities.handleErrors(baseController.buildHome)
-  )
+  "/login",
+  loginRules(),
+  checkLoginData,
+  utilities.handleErrors(accountController.accountLogin)
+);
 
-module.exports = router
+// Routes for updating account information
+router.get("/update", utilities.handleErrors(accountController.buildUpdateView));
+router.post("/update", utilities.handleErrors(accountController.updateAccount));
+router.post("/change-password", utilities.handleErrors(accountController.changePassword));
+
+// Route for logout
+router.get("/logout", (req, res) => {
+  res.clearCookie("jwt");
+  res.redirect("/");
+});
+
+module.exports = router;

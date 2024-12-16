@@ -31,5 +31,5 @@ WHERE
 -- Remove '/images/vehicles/vehiclesvehicles' from inv_image and inv_thumbnail paths then replacing with /images/vehicles/
 UPDATE inventory
 SET 
-    inv_image = REPLACE(inv_image, '/images/vehicles//', '/images/vehicles/'),
-    inv_thumbnail = REPLACE(inv_thumbnail, '/images/vehicles//', '/images/vehicles/');
+    inv_image = REPLACE(inv_image, '/images/', '/images/vehicles/'),
+    inv_thumbnail = REPLACE(inv_thumbnail, '/images/', '/images/vehicles/');
